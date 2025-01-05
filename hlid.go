@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -88,13 +89,15 @@ func (id ID) Value() (driver.Value, error) {
 }
 
 func (id *ID) Scan(value any) error {
-	v, ok := value.([]byte)
-
-	if !ok {
-		return fmt.Errorf("invalid ID type: %T", value)
+	switch v := value.(type) {
+	// The UUID type is returned as a string
+	case string:
+		return id.UnmarshalText([]byte(strings.ReplaceAll(v, "-", "")))
+	case []byte:
+		return id.UnmarshalBinary(v)
+	default:
+		return fmt.Errorf("unsupported ID type: %T", value)
 	}
-
-	return id.UnmarshalBinary(v)
 }
 
 func (id *ID) UnmarshalJSON(b []byte) error {
