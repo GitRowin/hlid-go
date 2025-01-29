@@ -115,3 +115,11 @@ func TestMarshalUnmarshalJSON(t *testing.T) {
 		t.Fatalf("expected %s, got %s", testTimeId, id)
 	}
 }
+
+func TestMustParse(t *testing.T) {
+	id := MustParse(testTimeId.String())
+
+	if id != testTimeId {
+		t.Fatalf("expected %s, got %s", testTimeId, id)
+	}
+}

@@ -112,3 +112,26 @@ func (id *ID) UnmarshalJSON(b []byte) error {
 func (id ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(hex.EncodeToString(id[:]))
 }
+
+func Parse(s string) (ID, error) {
+	var id ID
+	v, err := hex.DecodeString(s)
+
+	if err != nil {
+		return id, err
+	}
+
+	if err := id.UnmarshalBinary(v); err != nil {
+		return id, err
+	}
+
+	return id, nil
+}
+
+func MustParse(s string) ID {
+	id, err := Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
