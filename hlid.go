@@ -57,8 +57,10 @@ func (id ID) String() string {
 	return hex.EncodeToString(id[:])
 }
 
-func (id ID) MarshalBinary() (b []byte, err error) {
-	return append([]byte(nil), id[:]...), nil
+func (id ID) MarshalBinary() ([]byte, error) {
+	b := make([]byte, len(id))
+	copy(b, id[:])
+	return b, nil
 }
 
 func (id *ID) UnmarshalBinary(b []byte) error {
@@ -70,22 +72,25 @@ func (id *ID) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-func (id ID) MarshalText() (b []byte, err error) {
-	return []byte(hex.EncodeToString(id[:])), nil
+func (id ID) MarshalText() ([]byte, error) {
+	b := make([]byte, hex.EncodedLen(len(id)))
+	hex.Encode(b, id[:])
+	return b, nil
 }
 
 func (id *ID) UnmarshalText(b []byte) error {
-	v, err := hex.DecodeString(string(b))
-
-	if err != nil {
-		return err
+	if len(b) != hex.EncodedLen(len(id)) {
+		return fmt.Errorf("invalid ID length: %d", len(b))
 	}
 
-	return id.UnmarshalBinary(v)
+	_, err := hex.Decode(id[:], b)
+	return err
 }
 
 func (id ID) Value() (driver.Value, error) {
-	return id[:], nil
+	b := make([]byte, len(id))
+	copy(b, id[:])
+	return b, nil
 }
 
 func (id *ID) Scan(value any) error {
@@ -115,17 +120,12 @@ func (id ID) MarshalJSON() ([]byte, error) {
 
 func Parse(s string) (ID, error) {
 	var id ID
-	v, err := hex.DecodeString(s)
-
-	if err != nil {
-		return id, err
+	if len(s) != hex.EncodedLen(len(id)) {
+		return id, fmt.Errorf("invalid ID length: %d", len(s))
 	}
 
-	if err := id.UnmarshalBinary(v); err != nil {
-		return id, err
-	}
-
-	return id, nil
+	_, err := hex.Decode(id[:], []byte(s))
+	return id, err
 }
 
 func MustParse(s string) ID {
