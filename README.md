@@ -25,7 +25,7 @@ HLID strikes a good balance between security, efficiency, and usability:
     - Lower resolution
     - 6 bits "wasted" for version
     - Annoying dashes
-    - [Not cryptographically secure depending on the implementation](https://www.rfc-editor.org/rfc/rfc9562.html#name-monotonicity-and-counters)
+    - ["Only" 62 or 74 bits of randomness](https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-7)
 - ULID:
     - Lower resolution
     - Text format not compatible with PostgreSQL's UUID type
